@@ -4,7 +4,7 @@
 
 
 
-📝 Comprehensive Project Overview:
+📝 *Comprehensive Project Overview*:
 This project analyzes wildfire data using:
 
 ICS-209-Plus reports (growth rate and rate of spread (ROS)).
@@ -17,9 +17,11 @@ Derived statistics like mean dNBR (Normalized Burn Ratio difference), growth rat
 
 These are integrated to understand relationships between fire energy (FRE), fire severity (dNBR), and fire growth (ROS).
 
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
-
-📂 Directory Structure:
+📂 *Directory Structure*:
 bash
 Copy
 Edit
@@ -47,9 +49,11 @@ Edit
     ├── frp-w-fre_trapezoids/
     └── dNBR_vs_FRE/
 
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
-
-🔥 Analysis Workflow & Scripts:
+🔥 *Analysis Workflow & Scripts*:
 ✅ 00_fire_list.R:
 Defines the specific fires for analysis.
 
@@ -193,9 +197,11 @@ Computes Pearson correlation and linear regression between ROS and FRE.
 
 Provides a graphical representation of this relationship.
 
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
-
-🎨 Visualization Explained:
+🎨 *Visualization Explained*:
 Growth Curves (ROS): Show rapid expansion phases for each fire.
 
 FRP vs. FRE plots: Illustrate instantaneous FRP values over time, with shaded area representing cumulative energy release (FRE).
@@ -204,9 +210,11 @@ dNBR maps: Display spatial burn severity.
 
 Scatterplots (FRE vs dNBR, ROS vs FRE): Show statistical relationships between total energy, fire growth, and burn severity clearly, highlighting key insights.
 
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
-
-📌 Important Files:
+📌 *Important Files*:
 ICS-209-Plus SITREPS: Fire growth and response data.
 
 /ICS-209-Plus_Datasets/
@@ -227,18 +235,22 @@ Generated visualizations:
 
 /plots/
 
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
-
-⚠️ Troubleshooting Notes:
+⚠️ *Troubleshooting Notes*:
 Always ensure the CRS (coordinate reference system) is consistent:
 
 Shapefiles and rasters must both use the Albers Equal Area (EPSG:5070).
 
 Confirm file paths carefully, especially when working across multiple scripts and directories.
 
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
-
-🚀 Running the Project:
+🚀 *Running the Project*:
 Recommended script execution order:
 
 00_fire_list.R (setup)
@@ -259,9 +271,11 @@ Recommended script execution order:
 
 10_compare_ROS_vs_FRE.R (ROS vs FRE)
 
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
-
-🧑‍💻 GitHub Documentation (Suggested):
+🧑‍💻 *GitHub Documentation* (Suggested):
 Include:
 
 Clear setup instructions (file paths, data sources).
@@ -276,8 +290,10 @@ Recommended script execution order.
 
 Brief glossary explaining acronyms (dNBR, FRE, ROS, MTBS, VIIRS).
 
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
-
-🎯 Outcome: 
+🎯 *Outcome*: 
 
 You have a clearly defined data pipeline and visual analysis framework to quantify wildfire characteristics, energy, severity, and growth.
