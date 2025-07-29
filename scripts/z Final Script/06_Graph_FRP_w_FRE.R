@@ -14,6 +14,15 @@ library(glue)
 library(stringr)
 library(readr)
 
+# Midpoint Rule (returns MJ)
+mid_FRE <- function(df) {
+  df <- df %>% arrange(ACQ_DATETIME)
+  if (nrow(df) < 2) return(0)
+  dt <- as.numeric(diff(df$ACQ_DATETIME), units="secs")
+  y  <- df$FL_FRP
+  sum(y[-length(y)] * dt, na.rm=TRUE)
+}
+
 # 1) trapezoid‐integration helper (returns MJ)
 trap_FRE <- function(df) {
   df <- df %>% arrange(ACQ_DATETIME)
@@ -21,6 +30,17 @@ trap_FRE <- function(df) {
   dt <- as.numeric(diff(df$ACQ_DATETIME), units="secs")
   y  <- df$FL_FRP
   sum((y[-1] + y[-length(y)])/2 * dt, na.rm=TRUE)
+}
+
+# Simpson's Rule (returns MJ)
+simp_FRE <- function(df) {
+  df <- df %>% arrange(ACQ_DATETIME)
+  n <- nrow(df)
+  if (n < 3 || n %% 2 == 0) return(NA)  # Simpson's rule needs odd n ≥ 3
+  h <- as.numeric(diff(df$ACQ_DATETIME), units="secs")[1]  # assuming equal spacing
+  y <- df$FL_FRP
+  sum <- y[1] + y[n] + 4 * sum(y[seq(2, n - 1, 2)]) + 2 * sum(y[seq(3, n - 2, 2)])
+  h * sum / 3
 }
 
 # 2) read & clean VIIRS FRP
@@ -73,6 +93,14 @@ fre_vals     <- numeric(nrow(fires))
 frp_by_fire  <- vector("list", nrow(fires))
 names(fre_vals) <- names(frp_by_fire) <- fires$fire_name
 
+fre_results <- tibble(
+  fire = character(),
+  satellite = character(),
+  FRE_Trapezoid_GJ = numeric(),
+  FRE_Midpoint_GJ  = numeric(),
+  FRE_Simpson_GJ   = numeric()
+)
+
 # 9) loop & plot
 for (i in seq_len(nrow(fires))) {
   f <- fires$fire_name[i]
@@ -90,9 +118,6 @@ for (i in seq_len(nrow(fires))) {
   
   frp_by_fire[[f]] <- frp_fire_all
   
-  # store FRE for ALL-satellite
-  fre_vals[f] <- trap_FRE(frp_fire_all) / 1000  # → GJ
-  
   frp_sets <- list(
     ALL  = frp_fire_all,
     N    = filter(frp_fire_all, SATELLITE == "N"),
@@ -107,7 +132,22 @@ for (i in seq_len(nrow(fires))) {
       next
     }
     
-    fre_GJ <- trap_FRE(df) / 1000
+    # Calculate FREs
+    fre_trap <- trap_FRE(df) / 1000
+    fre_mid  <- mid_FRE(df)  / 1000
+    fre_simp <- simp_FRE(df) / 1000
+    
+    # Append to results
+    fre_results <- bind_rows(
+      fre_results,
+      tibble(
+        fire = f,
+        satellite = sat,
+        FRE_Trapezoid_GJ = fre_trap,
+        FRE_Midpoint_GJ  = fre_mid,
+        FRE_Simpson_GJ   = fre_simp
+      )
+    )
     
     p <- ggplot(df, aes(ACQ_DATETIME, FL_FRP)) +
       geom_area(aes(y = FL_FRP, fill = "FRE"), alpha = 0.4) +
@@ -116,7 +156,7 @@ for (i in seq_len(nrow(fires))) {
       scale_color_manual(name = NULL, values = c(FRP = "orange")) +
       labs(
         title    = glue("{f} FRP (VIIRS-{sat})"),
-        subtitle = glue("FRE ≈ {round(fre_GJ, 1)} GJ"),
+        subtitle = glue("FRE ≈ {round(fre_trap, 1)} GJ"),
         x        = "Acquisition Time",
         y        = "Fire Radiative Power (MW)"
       ) +
@@ -149,9 +189,10 @@ message("Done — plots in ", out_dir)
 cat("\n--- FRE values (GJ) for all 7 fires ---\n")
 print(fre_vals)
 
-if (any(fre_vals > 0)) {
-  write_csv(
-    tibble(fire = names(fre_vals), FRE_GJ = fre_vals),
-    file = file.path(stat_dir, "FRE_values_summary.csv")
-  )
-}
+# Save comparison of all FRE methods
+fre_outfile <- "/home/ojiji-chhaya/Projects/RECCS Forest Fire Project/Tables/FRE_values_comparison.csv"
+dir.create(dirname(fre_outfile), recursive = TRUE, showWarnings = FALSE)
+write_csv(fre_results, fre_outfile)
+
+message("\n✔ Saved FRE method comparison table to:")
+message(fre_outfile)
