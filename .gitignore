@@ -1,0 +1,22 @@
+# ignore raw data—we'll load these locally but not version them in Git
+Fire GeoTIFFs/
+ICS-209-Plus_Datasets/
+mtbs/
+MTBS_BSmosaics/
+mtbs_perimeter_data/
+ics209plus-wildfire/
+VIIRS/
+
+# you can keep summary CSVs or small tables:
+!Tables/
+!plots/dNBR_vs_FRE/
+
+# keep your scripts
+!scripts/
+
+# R cruft
+*.RData
+*.Rhistory
+
+# macOS
+.DS_Store
