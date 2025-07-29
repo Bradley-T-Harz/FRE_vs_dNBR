@@ -17,6 +17,8 @@ Derived statistics like mean dNBR (Normalized Burn Ratio difference), growth rat
 
 These are integrated to understand relationships between fire energy (FRE), fire severity (dNBR), and fire growth (ROS).
 
+
+
 📂 Directory Structure:
 bash
 Copy
@@ -44,6 +46,9 @@ Edit
     ├── dNBR_perimeter_maps/
     ├── frp-w-fre_trapezoids/
     └── dNBR_vs_FRE/
+
+
+
 🔥 Analysis Workflow & Scripts:
 ✅ 00_fire_list.R:
 Defines the specific fires for analysis.
@@ -51,6 +56,7 @@ Defines the specific fires for analysis.
 Located in root.
 
 Creates a tidy data table fires_tbl with fire IDs and names.
+
 
 ✅ 01_run_ics209_ros.R:
 Reads ICS-209-Plus SITREP data, computes wildfire growth metrics (ROS), and generates ROS plots.
@@ -71,12 +77,14 @@ Filters top fires in Colorado based on peak growth rates.
 
 Creates visualizations for fire growth (ROS) with annotations.
 
+
 ✅ 02_summary_table_three_fires.R:
 Extracts and summarizes detailed ROS data specifically for your chosen fires.
 
 Reads data from previous steps to summarize ROS clearly.
 
 Useful for quick reference.
+
 
 ✅ 03_2020_MTBS_Mosaic_CO.R:
 Generates a Colorado-wide mosaic of MTBS dNBR for 2020.
@@ -91,6 +99,7 @@ Image: plots/dNBR_perimeter_maps/0_Colorado_Mosaic.png.
 
 Provides context of burn severity for Colorado during 2020.
 
+
 ✅ 04_MTBS_Perim_Info.R:
 Filters MTBS perimeter shapefile to your fires of interest.
 
@@ -100,6 +109,7 @@ Output: Tables/filtered_mtbs_fires.geojson.
 
 Checks perimeter data availability, highlighting missing fires.
 
+
 ✅ 05_VIIRS_FRP_Info.R:
 Extracts VIIRS-derived FRP data for selected fires.
 
@@ -108,6 +118,7 @@ Input: VIIRS data (perim_polygons_viirs.geojson).
 Output: Tables/viirs_fires_subset.geojson.
 
 Highlights any missing VIIRS data columns clearly.
+
 
 ✅ 06_Graph_FRP_w_FRE.R:
 Calculates total FRE (energy release) from VIIRS FRP data and generates visual plots.
@@ -123,6 +134,7 @@ CSV: plots/dNBR_vs_FRE/FRE_values_summary.csv.
 Visualizes instantaneous FRP over time and the cumulative FRE for each fire.
 
 Uses trapezoidal numerical integration to estimate total FRE.
+
 
 ✅ 08_dNBR_values_&_plot.R:
 Processes dNBR raster data, aligns it with MTBS perimeters, and generates burn severity statistics and visualizations.
@@ -143,6 +155,7 @@ Computes mean, standard deviation, min, max of dNBR for each fire.
 
 Handles reprojection and cropping/masking issues robustly.
 
+
 ✅ 09_compare_FRE_dNBR.R:
 Analyzes relationships between total fire radiative energy (FRE) and burn severity (mean dNBR).
 
@@ -162,6 +175,7 @@ Computes Pearson correlation and fits a linear model between FRE and mean dNBR.
 
 Visualizes this relationship with clear annotations.
 
+
 ✅ 10_compare_ROS_vs_FRE.R:
 Analyzes relationships between fire growth rate (peak ROS) and total FRE.
 
@@ -179,6 +193,8 @@ Computes Pearson correlation and linear regression between ROS and FRE.
 
 Provides a graphical representation of this relationship.
 
+
+
 🎨 Visualization Explained:
 Growth Curves (ROS): Show rapid expansion phases for each fire.
 
@@ -187,6 +203,8 @@ FRP vs. FRE plots: Illustrate instantaneous FRP values over time, with shaded ar
 dNBR maps: Display spatial burn severity.
 
 Scatterplots (FRE vs dNBR, ROS vs FRE): Show statistical relationships between total energy, fire growth, and burn severity clearly, highlighting key insights.
+
+
 
 📌 Important Files:
 ICS-209-Plus SITREPS: Fire growth and response data.
@@ -209,12 +227,16 @@ Generated visualizations:
 
 /plots/
 
+
+
 ⚠️ Troubleshooting Notes:
 Always ensure the CRS (coordinate reference system) is consistent:
 
 Shapefiles and rasters must both use the Albers Equal Area (EPSG:5070).
 
 Confirm file paths carefully, especially when working across multiple scripts and directories.
+
+
 
 🚀 Running the Project:
 Recommended script execution order:
@@ -237,6 +259,8 @@ Recommended script execution order:
 
 10_compare_ROS_vs_FRE.R (ROS vs FRE)
 
+
+
 🧑‍💻 GitHub Documentation (Suggested):
 Include:
 
@@ -252,4 +276,8 @@ Recommended script execution order.
 
 Brief glossary explaining acronyms (dNBR, FRE, ROS, MTBS, VIIRS).
 
-🎯 Outcome: You have a clearly defined data pipeline and visual analysis framework to quantify wildfire characteristics, energy, severity, and growth.
+
+
+🎯 Outcome: 
+
+You have a clearly defined data pipeline and visual analysis framework to quantify wildfire characteristics, energy, severity, and growth.
