@@ -14,16 +14,22 @@ library(glue)
 library(stringr)
 library(readr)
 
-# Midpoint Rule (returns MJ)
+# ─── 1) Midpoint Rule (returns MJ) ─────────────────────────────────────────
 mid_FRE <- function(df) {
   df <- df %>% arrange(ACQ_DATETIME)
   if (nrow(df) < 2) return(0)
-  dt <- as.numeric(diff(df$ACQ_DATETIME), units="secs")
-  y  <- df$FL_FRP
-  sum(y[-length(y)] * dt, na.rm=TRUE)
+  times <- as.numeric(df$ACQ_DATETIME)
+  y     <- df$FL_FRP
+  
+  dt <- diff(times)
+  mid_times <- times[-length(times)] + dt/2
+  # interpolate FRP at those midpoints
+  y_mid <- approx(x = times, y = y, xout = mid_times, rule = 2)$y
+  # sum rectangle areas
+  sum(y_mid * dt, na.rm = TRUE)
 }
 
-# 1) trapezoid‐integration helper (returns MJ)
+# ─── 2) Trapezoid Rule (returns MJ) ────────────────────────────────────────
 trap_FRE <- function(df) {
   df <- df %>% arrange(ACQ_DATETIME)
   if (nrow(df) < 2) return(0)
@@ -32,15 +38,24 @@ trap_FRE <- function(df) {
   sum((y[-1] + y[-length(y)])/2 * dt, na.rm=TRUE)
 }
 
-# Simpson's Rule (returns MJ)
+# ─── 3) Simpson’s Rule on a regular 12 h grid (returns MJ) ────────────────
 simp_FRE <- function(df) {
   df <- df %>% arrange(ACQ_DATETIME)
-  n <- nrow(df)
-  if (n < 3 || n %% 2 == 0) return(NA)  # Simpson's rule needs odd n ≥ 3
-  h <- as.numeric(diff(df$ACQ_DATETIME), units="secs")[1]  # assuming equal spacing
-  y <- df$FL_FRP
-  sum <- y[1] + y[n] + 4 * sum(y[seq(2, n - 1, 2)]) + 2 * sum(y[seq(3, n - 2, 2)])
-  h * sum / 3
+  # build a uniform 12h sequence from first to last acquisition
+  times <- seq(min(df$ACQ_DATETIME), max(df$ACQ_DATETIME), by = "12 hours")
+  # linear interpolation of FRP onto that grid
+  yi <- approx(x = as.numeric(df$ACQ_DATETIME),
+               y = df$FL_FRP,
+               xout = as.numeric(times),
+               rule = 2)$y
+  n <- length(yi)
+  # Simpson needs odd n ≥ 3 (even number of intervals)
+  if (n < 3 || (n - 1) %% 2 != 0) return(NA)
+  h <- 12 * 3600  # constant step in seconds
+  S <- yi[1] + yi[n] +
+    4 * sum(yi[seq(2, n - 1, by = 2)]) +
+    2 * sum(yi[seq(3, n - 2, by = 2)])
+  h * S / 3
 }
 
 # 2) read & clean VIIRS FRP
@@ -131,6 +146,11 @@ for (i in seq_len(nrow(fires))) {
               if (nrow(df) == 1) "" else "s", ")")
       next
     }
+    
+    # —— new aggregation step ——
+    df <- df %>%
+      group_by(ACQ_DATETIME) %>%
+      summarize(FL_FRP = sum(FL_FRP), .groups = "drop")
     
     # Calculate FREs
     fre_trap <- trap_FRE(df) / 1000
